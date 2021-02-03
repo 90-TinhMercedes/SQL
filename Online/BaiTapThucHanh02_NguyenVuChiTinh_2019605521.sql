@@ -104,6 +104,7 @@ insert into PNhap values('N06', '09/17/2018', 'NV4')
 insert into PNhap values('N07', '09/26/2018', 'NV4')
 insert into PNhap values('N08', '08/15/2018', 'NV2')
 insert into PNhap values('N09', '08/15/2018', 'NV5')
+insert into PNhap values('N10', '08/27/2020', 'NV6')
 
 Select * From PNhap
 
@@ -117,6 +118,7 @@ insert into Nhap values('N06', 'SP1', '17', 7500)
 insert into Nhap values('N07', 'SP4', '21', 7500)
 insert into Nhap values('N08', 'SP3', '25', 21000)
 insert into Nhap values('N09', 'SP4', '21', 18000)
+insert into Nhap values('N07', 'SP8', '8', 4500000)
 
 Select * From Nhap
 
@@ -221,14 +223,37 @@ Select * From CauG
 --cau h
 Create View CauH AS
 Select SanPham.MaSP, TenSP
-From SanPham Inner Join Xuat On SanPham.MaSP = Xuat.MaSP
+From SanPham Inner Join Nhap On SanPham.MaSP = Nhap.MaSP
 Where SanPham.MaSP Not In (Select Xuat.MaSP From Xuat)
 
 Select * From CauH
 
 
+--cau i
+Create View CauI AS
+Select SanPham.MaSP, TenSP
+From SanPham Inner Join Nhap On SanPham.MaSP = Nhap.MaSP
+			 Inner Join Xuat On	SanPham.MaSP = Xuat.MaSP
+			 Inner Join PNhap On PNhap.SoHDN = Nhap.SoHDN
+			 Inner Join PXuat On PXuat.SoHDX = Xuat.SoHDX
+Where Year(NgayNhap) = 2020
+And Year(NgayXuat) = 2020
+Group By SanPham.MaSP, TenSP
+
+Select * From CauI
 
 
+--cau j
+Create View CauJ AS
+Select NhanVien.MaNV, TenNV
+From NhanVien Inner Join PNhap On NhanVien.MaNV = PNhap.MaNV
+			  Inner Join PXuat On NhanVien.MaNV = PXuat.MaNV
+Where PNhap.MaNV In (Select NhanVien.MaNV From PXuat)
+Group By NhanVien.MaNV, TenNV
+
+Select * From CauJ
+
+--cau 
 
 
 
