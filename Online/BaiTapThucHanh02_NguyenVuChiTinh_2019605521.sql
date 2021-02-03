@@ -82,6 +82,7 @@ insert into SanPham values('SP4', 'HSX1', 'Banh Dau Xanh', 13, 'Vang', 15000, 'h
 insert into SanPham values('SP5', 'HSX4', 'Banh Chocopice', 18, 'Den', 30000, 'hop', 'hinh tron')
 insert into SanPham values('SP6', 'HSX6', 'Tai Nghe', 80, 'Den', 1200000, 'chiec', 'hinh tron')
 insert into SanPham values('SP7', 'HSX6', 'Smart Phone', 25, 'Trang', 3000000, 'chiec', 'hinh chu nhat')
+insert into SanPham values('SP8', 'HSX1', 'Smart Tivi', 15, 'Xam', 5000000, 'chiec', 'hinh chu nhat')
 
 Select * From SanPham
 
@@ -90,6 +91,7 @@ insert into NhanVien values('NV2', 'Bui Thi Hai', 'Nu', 'Hai Ba Trung', '0565656
 insert into NhanVien values('NV3', 'Ha Ngoc Son', 'Nam', 'Kon Tum', '0141414', 'ngocson@gamil.com', 'Bao ve')
 insert into NhanVien values('NV4', 'Vu Van Tam', 'Nam', 'Ba Vi', '0898989', 'vantam@gamil.com', 'Thu ngan')
 insert into NhanVien values('NV5', 'Nguyen Van Ba', 'Nam', 'Quoc Oai', '0525252', 'vanba@gamil.com', 'Truong phong')
+insert into NhanVien values('NV6', 'Vi Hung', 'Nam', 'Thanh Liem', '0484848', 'vihung@gamil.com', 'Truong phong')
 
 Select * From NhanVien
 
@@ -98,6 +100,10 @@ insert into PNhap values('N02', '10/07/2020', 'NV1')
 insert into PNhap values('N03', '07/28/2020', 'NV3')
 insert into PNhap values('N04', '08/15/2020', 'NV3')
 insert into PNhap values('N05', '09/23/2020', 'NV5')
+insert into PNhap values('N06', '09/17/2018', 'NV4')
+insert into PNhap values('N07', '09/26/2018', 'NV4')
+insert into PNhap values('N08', '08/15/2018', 'NV2')
+insert into PNhap values('N09', '08/15/2018', 'NV5')
 
 Select * From PNhap
 
@@ -106,6 +112,11 @@ insert into Nhap values('N05', 'SP2', '11', 7000)
 insert into Nhap values('N03', 'SP4', '8', 8000)
 insert into Nhap values('N02', 'SP4', '5', 9000)
 insert into Nhap values('N01', 'SP3', '10', 6000)
+insert into Nhap values('N07', 'SP3', '18', 9000)
+insert into Nhap values('N06', 'SP1', '17', 7500)
+insert into Nhap values('N07', 'SP4', '21', 7500)
+insert into Nhap values('N08', 'SP3', '25', 21000)
+insert into Nhap values('N09', 'SP4', '21', 18000)
 
 Select * From Nhap
 
@@ -114,6 +125,8 @@ insert into PXuat values('X02', '11/08/2020', 'NV4')
 insert into PXuat values('X03', '07/22/2020', 'NV2')
 insert into PXuat values('X04', '06/18/2020', 'NV5')
 insert into PXuat values('X05', '07/23/2020', 'NV1')
+insert into PXuat values('X06', '06/18/2018', 'NV1')
+insert into PXuat values('X07', '05/19/2018', 'NV2')
 
 Select * From PXuat
 
@@ -126,6 +139,8 @@ insert into Xuat values('X05', 'SP6', '15')
 insert into Xuat values('X05', 'SP7', '5')
 insert into Xuat values('X01', 'SP6', '11000')
 insert into Xuat values('X03', 'SP7', '10010')
+insert into Xuat values('X06', 'SP5', '7')
+insert into Xuat values('X07', 'SP6', '9')
 
 Select * From Xuat
 
@@ -158,6 +173,61 @@ Group By SanPham.MaSP, TenSP
 Having Sum(SoluongX) >= 10000
 
 Select * From CauC
+
+--cau d
+Create View CauD AS
+Select TenPhong, Count(GioiTinh) AS 'So Luong NV Nam'
+From NhanVien
+Where GioiTinh = 'Nam'
+Group By TenPhong
+
+Select * From CauD
+
+--cau e
+Create View CauE AS
+Select SanPham.MaHangSX, TenHang, sum(SoLuongN) AS 'Tổng số lượng nhập'
+From Nhap Inner Join PNhap On Nhap.SoHDN = PNhap.SoHDN
+		  Inner Join SanPham On Nhap.MaSP = SanPham.MaSP
+		  Inner Join HangSX On HangSX.MaHangSX = SanPham.MaHangSX
+Where Year(NgayNhap) = 2018
+Group By SanPham.MaHangSX, TenHang
+
+Select * From CauE
+
+--cau f
+Create View CauF AS
+Select NhanVien.MaNV, TenNV, sum(SoLuongX * Giaban) AS 'Tổng tiền xuất' 
+From NhanVien Inner Join PXuat On NhanVien.MaNV = PXuat.MaNV
+			  Inner Join Xuat On Xuat.SoHDX = PXuat.SoHDX
+			  Inner Join SanPham On SanPham.MaSP = Xuat.MaSP
+Where Year(NgayXuat) = 2018
+Group By NhanVien.MaNV, TenNV
+
+Select * From CauF
+
+
+--cau g
+Create View CauG AS
+Select NhanVien.MaNV, TenNV, sum(SoLuongN * DonGiaN) AS 'Tổng tiền nhập'
+From NhanVien Inner Join PNhap On NhanVien.MaNV = PNhap.MaNV
+			  Inner Join Nhap On PNhap.SoHDN = Nhap.SoHDN
+Where Year(NgayNhap) = 2018
+And Month(NgayNhap) = 8
+Group By NhanVien.MaNV, TenNV
+Having sum(SoLuongN * DonGiaN) > 100000
+
+Select * From CauG
+
+--cau h
+Create View CauH AS
+Select SanPham.MaSP, TenSP
+From SanPham Inner Join Xuat On SanPham.MaSP = Xuat.MaSP
+Where SanPham.MaSP Not In (Select Xuat.MaSP From Xuat)
+
+Select * From CauH
+
+
+
 
 
 
