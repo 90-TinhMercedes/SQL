@@ -92,6 +92,8 @@ insert into NhanVien values('NV3', 'Ha Ngoc Son', 'Nam', 'Kon Tum', '0141414', '
 insert into NhanVien values('NV4', 'Vu Van Tam', 'Nam', 'Ba Vi', '0898989', 'vantam@gamil.com', 'Thu ngan')
 insert into NhanVien values('NV5', 'Nguyen Van Ba', 'Nam', 'Quoc Oai', '0525252', 'vanba@gamil.com', 'Truong phong')
 insert into NhanVien values('NV6', 'Vi Hung', 'Nam', 'Thanh Liem', '0484848', 'vihung@gamil.com', 'Truong phong')
+insert into NhanVien values('NV7', 'Yen Dung', 'Nu', 'Duy Tien', '0464646', 'yendung@gamil.com', 'Thu Ngan')
+
 
 Select * From NhanVien
 
@@ -146,7 +148,7 @@ insert into Xuat values('X07', 'SP6', '9')
 
 Select * From Xuat
 
---cau a
+--cau a,  Hãy thống kê xem mỗi hãng sản xuất có bao nhiêu loại sản phẩm
 Create View CauA AS
 Select HangSX.MaHangSX, TenHang, count (*) AS 'So Luong SP'
 From SanPham Inner Join HangSX On SanPham.MaHangSX = HangSX.MaHangSX
@@ -154,7 +156,7 @@ Group By HangSX.MaHangSX, TenHang
 
 Select * From CauA
 
---cau b
+--cau b, Hãy thống kê xem tổng tiền nhập của mỗi sản phẩm trong năm 2020
 Create View CauB AS
 Select SanPham.MaSP, TenSP, sum(SoLuongN * DonGiaN) AS 'Tổng tiền nhập'
 From Nhap Inner Join PNhap On Nhap.SoHDN = PNhap.SoHDN
@@ -164,7 +166,7 @@ Group By SanPham.MaSP, TenSP
 
 Select * From CauB
 
---cau c
+--cau c, Hãy thống kê các sản phẩm có tổng số lượng xuất năm 2020 là lớn hơn 10.000 sản phẩm của hãng Samsung.
 Create View CauC AS
 Select SanPham.MaSP, TenSP, sum(SoLuongX) AS 'Tổng xuất'
 From Xuat Inner Join PXuat On Xuat.SoHDX = PXuat.SoHDX
@@ -176,7 +178,7 @@ Having Sum(SoluongX) >= 10000
 
 Select * From CauC
 
---cau d
+--cau d, Thống kê số lượng nhân viên Nam của mỗi phòng ban
 Create View CauD AS
 Select TenPhong, Count(GioiTinh) AS 'So Luong NV Nam'
 From NhanVien
@@ -185,7 +187,7 @@ Group By TenPhong
 
 Select * From CauD
 
---cau e
+--cau e, Thống kê tổng số lượng nhập của mỗi hãng sản xuất trong năm 2018
 Create View CauE AS
 Select SanPham.MaHangSX, TenHang, sum(SoLuongN) AS 'Tổng số lượng nhập'
 From Nhap Inner Join PNhap On Nhap.SoHDN = PNhap.SoHDN
@@ -196,7 +198,7 @@ Group By SanPham.MaHangSX, TenHang
 
 Select * From CauE
 
---cau f
+--cau f,  Hãy thống kê xem tổng lượng tiền xuất của mỗi nhân viên trong năm 2018 là bao nhiêu
 Create View CauF AS
 Select NhanVien.MaNV, TenNV, sum(SoLuongX * Giaban) AS 'Tổng tiền xuất' 
 From NhanVien Inner Join PXuat On NhanVien.MaNV = PXuat.MaNV
@@ -208,7 +210,8 @@ Group By NhanVien.MaNV, TenNV
 Select * From CauF
 
 
---cau g
+--cau g, Hãy Đưa ra tổng tiền nhập của mỗi nhân viên trong tháng 8 – năm 2018 có tổng giá trị
+lớn hơn 100.000
 Create View CauG AS
 Select NhanVien.MaNV, TenNV, sum(SoLuongN * DonGiaN) AS 'Tổng tiền nhập'
 From NhanVien Inner Join PNhap On NhanVien.MaNV = PNhap.MaNV
@@ -220,7 +223,7 @@ Having sum(SoLuongN * DonGiaN) > 100000
 
 Select * From CauG
 
---cau h
+--cau h, Hãy Đưa ra danh sách các sản phẩm đã nhập nhưng chưa xuất bao giờ.
 Create View CauH AS
 Select SanPham.MaSP, TenSP
 From SanPham Inner Join Nhap On SanPham.MaSP = Nhap.MaSP
@@ -229,7 +232,7 @@ Where SanPham.MaSP Not In (Select Xuat.MaSP From Xuat)
 Select * From CauH
 
 
---cau i
+--cau i, Hãy Đưa ra danh sách các sản phẩm đã nhập năm 2020 và đã xuất năm 2020
 Create View CauI AS
 Select SanPham.MaSP, TenSP
 From SanPham Inner Join Nhap On SanPham.MaSP = Nhap.MaSP
@@ -243,7 +246,7 @@ Group By SanPham.MaSP, TenSP
 Select * From CauI
 
 
---cau j
+--cau j, Hãy Đưa ra danh sách các nhân viên vừa nhập vừa xuất
 Create View CauJ AS
 Select NhanVien.MaNV, TenNV
 From NhanVien Inner Join PNhap On NhanVien.MaNV = PNhap.MaNV
@@ -253,7 +256,25 @@ Group By NhanVien.MaNV, TenNV
 
 Select * From CauJ
 
---cau 
+--cau k, hãy đưa ra danh sách các nhân viên không tham gia việc nhập và xuất
+Create View CauK AS
+Select NhanVien.MaNV, TenNV
+From NhanVien
+Where NhanVien.MaNV Not In (Select PXuat.MaNV From PXuat)
+And NhanVien.MaNV Not In (Select PNhap.MaNV From PNhap) 
+
+Select * From CauK
+
+
+-- cau l, Hãy đưa tên sản phẩm có tổng lượng xuất nhiều nhất.
+Create View CauL AS
+Select SanPham.MaSP, TenSP, Max(SoLuongX) AS 'Tổng Số lượng Xuất'
+From SanPham Inner Join Xuat On SanPham.MaSP = Xuat.MaSP
+Group By SanPham.MaSP, TenSP
+ 
+
+
+
 
 
 

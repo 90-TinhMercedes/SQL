@@ -48,36 +48,42 @@ Insert into Nhap values('N1', 'VT5', 2, 100, '5/5/2020')
 Insert into Nhap values('N2', 'VT2', 2, 10, '5/6/2020') 
 Insert into Nhap values('N3', 'VT1', 6, 100, '5/7/2020') 
 
+Select * From Nhap
+
 Insert into Xuat values( 'X1', 'VT1', 2, 10, '4/5/2020') 
 Insert into Xuat values( 'X2', 'VT4', 2, 10, '9/6/2020')
 
+Select * From Xuat
+
 CREATE VIEW CAU2
 AS
-select Ton.MaVT,TenVT,sum(SoLuongX*DonGiaX) as 'tien ban'
-from Xuat inner join ton on Xuat.MaVT=Ton.MaVT
-group by Ton.MaVT,TenVT
+Select Ton.MaVT,TenVT,sum(SoLuongX*DonGiaX) As 'tien ban'
+From Xuat inner join ton On Xuat.MaVT=Ton.MaVT
+Group By Ton.MaVT,TenVT
 
 SELECT * FROM CAU2
 
 
-create view CAU3 as
-select ton.TenVT,sum(SoLuongx) as 'Tong sl'
-from xuat INNER JOIN ton on Xuat.MaVT=Ton.MaVT
-group by Ton.TenVT
+Create View CAU3 As
+Select ton.TenVT,sum(SoLuongx) As 'Tong slx'
+From xuat INNER JOIN ton On Xuat.MaVT=Ton.MaVT
+Group By Ton.TenVT
 
-select * from CAU3
+Select * From CAU3
 
 CREATE VIEW CAU4 AS
-SELECT Ton.TenVT,sum(SoLuongN) AS 'Tong slN'
+SELECT Ton.TenVT, sum(SoLuongN) AS 'Tong So Luong Nhap'
 FROM Nhap INNER JOIN ton ON Nhap.MaVT=ton.MaVT
 GROUP BY Ton.TenVT
 
-select * from CAU4
+Drop View CAU4
 
-create view CAU5 AS
-select ton.MaVT,sum(SoLuongN)-sum(SoLuongX) + sum(soluongT)as 'Tong ton'
-from Nhap INNER JOIN ton on Nhap.MaVT=Ton.MaVT
+Select * From CAU4
+
+Create View CAU5 AS
+Select ton.MaVT, TenVT, sum(SoLuongN)-sum(SoLuongX) + sum(soluongT) As 'Tong ton'
+From Nhap INNER JOIN ton On Nhap.MaVT=Ton.MaVT
 INNER JOIN Xuat on Ton.MaVT=Xuat.MaVT
-group by Ton.MaVT,Ton.TenVT
+Group By Ton.MaVT,Ton.TenVT
 
 SELECT * FROM CAU5
