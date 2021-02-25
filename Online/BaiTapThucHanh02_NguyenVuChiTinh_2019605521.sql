@@ -290,14 +290,6 @@ Select * From CauL
  Inner Join PXuat On PXuat.SoHDX = Xuat.SoHDX
  Where Year(NgayXuat) = '2020'
  Group By SanPham.TenSP
- Having Count(Xuat.SoHDX) > 10
+ Having Count(Xuat.SoHDX) >= 10
 
  Select * From CauP
-
- 
-
-
-
-
-
-
