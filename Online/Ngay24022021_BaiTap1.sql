@@ -1,4 +1,5 @@
 ﻿Create Database QLSV
+
 Create Table SINHVIEN
 (
 MaSV Varchar(12) Not Null Primary Key,
