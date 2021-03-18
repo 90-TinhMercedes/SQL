@@ -68,4 +68,5 @@ as
 		return @Sumprice
 	end
 
-select dbo.cau03('Khoa 01')
+select dbo.cau03('Khoa 01') as 'Tong tien'
+select dbo.cau03('Khoa 02') as 'Tong tien'
