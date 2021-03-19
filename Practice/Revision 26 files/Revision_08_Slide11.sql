@@ -68,9 +68,9 @@ as
 		return @Result
 	end
 
-select  dbo.cau03('2019') as TongTIen
-select  dbo.cau03('2020') as TongTIen
-select  dbo.cau03('2021') as TongTIen
+select  dbo.cau03('2019') as TongTIen --131.000
+select  dbo.cau03('2020') as TongTIen -- 138.000
+select  dbo.cau03('2021') as TongTIen -- NULL
 
 
 
