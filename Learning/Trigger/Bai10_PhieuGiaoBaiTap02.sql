@@ -90,6 +90,7 @@ as
 		inner join inserted on deleted.STT = inserted.STT
 	end
 
+drop trigger userUpdateNHATKYBANHANG_way02
 
 select * from MATHANG
 select * from NHATKYBANHANG
@@ -126,13 +127,76 @@ as
 
 select * from MATHANG
 select * from NHATKYBANHANG
---insert into NHATKYBANHANG values ('07/25/2020', 'Love Veigar', 'H03', 500, 12000) -- Hang khong du de cung cap
+delete from NHATKYBANHANG where STT = 6 -- trước đây STT 6 nhập lỗi :< hic
+insert into NHATKYBANHANG values ('07/25/2020', 'Love Veigar', 'H03', 500, 12000) -- Hang khong du de cung cap
 insert into NHATKYBANHANG values ('07/25/2020', 'Love Veigar', 'H03', 15, 12000)
 select * from MATHANG
 select * from NHATKYBANHANG
 
+--d. Trigger dưới đây nhằm để kiểm soát lỗi update bảng
+--nhatkybanhang, nếu update >1 bản ghi thì thông báo lỗi(Trigger4
+--chỉ làm trên 1 bản ghi), quay trở về. Ngược lại thì update lại số
+--lượng cho bảng mathang.
+
+alter trigger cauD
+on NHATKYBANHANG
+for update
+as
+	begin
+		declare @maHang char(10)
+		declare @before int
+		declare @after int
+		if (select count(*) from inserted) > 1
+			begin
+				raiserror('Khong duoc sua nhieu hon 01 dong lenh.', 16, 1)
+				rollback tran
+				return
+			end
+		else
+			if update(SoLuong)
+				begin
+					select @maHang = MaHang from inserted
+					select @before = deleted.SoLuong from deleted
+					select @after = inserted.SoLuong from inserted
+					update MATHANG set MATHANG.SoLuong = MATHANG.SoLuong - (@after - @before)
+					--from deleted inner join MATHANG on deleted.MaHang = MATHANG.MaHang
+					--inner join inserted on deleted.STT = inserted.STT
+					where MATHANG.MaHang = @maHang
+				end
+	end
+
+drop trigger cauD
+
+select * from MATHANG
+select * from NHATKYBANHANG
+update NHATKYBANHANG set SoLuong = SoLuong + 5 where STT = 4
+update NHATKYBANHANG set SoLuong = SoLuong + 5 where STT = 5
+select * from MATHANG
+select * from NHATKYBANHANG
 
 
+--e. Hay tao Trigger xoa 1 ban ghi bang nhatkybanhang, neu xoa nhieu hon
+--1 record thi hay thong bao loi xoa ban ghi, nguoc lai hay update bang
+--mathang voi cot so luong tang len voi ma hang da xoa o bang
+--nhatkybanhang
+
+create trigger cauE
+on NHATKYBANHANG
+for delete
+as
+	begin
+		declare @maHang char(10)
+		declare @soLuongHuy int
+		select @maHang = MaHang from deleted;
+		select @soLuongHuy = deleted.soLuong from deleted
+		update MATHANG set SoLuong = SoLuong + @soLuongHuy where MaHang = @maHang
+	end
+
+select * from MATHANG
+select * from NHATKYBANHANG
+delete from NHATKYBANHANG where STT = 8
+select * from MATHANG
+select * from NHATKYBANHANG
 
 
 
