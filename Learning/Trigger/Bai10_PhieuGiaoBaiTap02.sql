@@ -169,8 +169,8 @@ drop trigger cauD
 
 select * from MATHANG
 select * from NHATKYBANHANG
-update NHATKYBANHANG set SoLuong = SoLuong + 5 where STT = 4
-update NHATKYBANHANG set SoLuong = SoLuong + 5 where STT = 5
+--update NHATKYBANHANG set SoLuong = SoLuong + 5 where STT = 4
+update NHATKYBANHANG set SoLuong = SoLuong + 5 where MaHang = 'H01' -- trường hợp có nhiều hơn 1 dòng thay đổi. Do MaHang H01 có 4 dòng trong bảng NHATKYBANHANG
 select * from MATHANG
 select * from NHATKYBANHANG
 
@@ -197,6 +197,38 @@ select * from NHATKYBANHANG
 delete from NHATKYBANHANG where STT = 8
 select * from MATHANG
 select * from NHATKYBANHANG
+
+--f. Tạo Trigger cập nhật bảng nhật ký bán hàng, nếu cập nhật nhiều hơn
+--1 bản ghi thông báo lỗi và phục hồi phiên giao dịch, ngược lại kiểm
+--tra xem nếu giá trị số lượng cập nhật < giá trị số lượng có thì thông báo
+--lỗi sai cập nhật, ngược lại nếu nếu giá trị số lượng cập nhật = giá trị số
+--lượng có thì thông báo không cần cập nhật ngược lại thì hãy cập nhật
+--giá trị
+
+create trigger cauF
+on NHATKYBANHANG
+for update
+as
+	begin
+		if (select count(*) from inserted) > 1
+			
+
+
+
+	end
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
