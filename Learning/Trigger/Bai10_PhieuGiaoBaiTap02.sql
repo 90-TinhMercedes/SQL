@@ -20,7 +20,8 @@ create table NHATKYBANHANG(
 
 insert into MATHANG values ('H01', 'Hang 01', 100)
 insert into MATHANG values ('H02', 'Hang 02', 200)
-insert into MATHANG values ('H03', 'Hang 02', 150)
+insert into MATHANG values ('H03', 'Hang 03', 150)
+insert into MATHANG values ('H04', 'Hang 04', 200)
 
 select * from MATHANG
 select * from NHATKYBANHANG
@@ -211,17 +212,81 @@ for update
 as
 	begin
 		if (select count(*) from inserted) > 1
-			
-
-
-
+			begin
+				raiserror('Error: Khong duoc phep cap nhat nhieu hon mot ban ghi.', 16, 1)
+				rollback transaction
+			end
+		else
+			begin
+				declare @before int
+				declare @after int
+				declare @maHang char(10)
+				select @before = SoLuong from deleted
+				select @after = SoLuong from inserted
+				select @maHang = MaHang from inserted
+				if (select SoLuong from MATHANG where MaHang = @maHang) < (@after - @before)
+					begin
+						raiserror('Error: Hang khong du de ban.', 16, 1)
+						rollback transaction
+					end
+				else
+					begin
+						update MATHANG set SoLuong = SoLuong - (@after - @before) where MaHang = @maHang				
+					end 
+			end
 	end
 
+select * from MATHANG
+select * from NHATKYBANHANG
+--update NHATKYBANHANG set SoLuong = SoLuong + 5 where MaHang = 'H01' -- truong hop cap nhat nhieu hon 1 ban ghi.
+--update NHATKYBANHANG set SoLuong = SoLuong + 500 where STT = '5' -- So luong hang khong du de ban
+update NHATKYBANHANG set SoLuong = SoLuong + 5 where STT = '5'
+select * from MATHANG
+select * from NHATKYBANHANG
 
 
+--g. Viết thủ tục xóa 1 bản ghi trên bảng mathang, voi mahang được nhập
+--từ bàn phím. Kiểm tra xem mahang co tồn tại hay không, nếu không
+--đưa ra thông báo, ngược lại hãy xóa, có tác động đến 2 bảng
 
+create procedure cauG(@MaHang char(10))
+as
+	begin
+		if (not exists (select MaHang from MATHANG where MaHang = @MaHang))
+			print 'Notification: MaHang ' + @MaHang + ' khong ton tai.'
+		else 
+			begin
+				delete from MATHANG where MaHang = @MaHang				
+			end
+	end
 
+	
+select * from MATHANG
+select * from NHATKYBANHANG
+insert into NHATKYBANHANG values ('07/25/2020', 'Tinh Veigar', 'H04', 20, 12000) -- thêm vào để test khi xoá một mặt hàng.
+select * from MATHANG
+select * from NHATKYBANHANG
 
+execute cauG 'H04'
+select * from MATHANG
+select * from NHATKYBANHANG
+
+--h. Viết 1 hàm tính tổng tiền của 1 mặt hàng có tên hàng được nhập từ bàn phím.
+create function cauH(@TenHang nvarchar(50))
+returns int
+as
+	begin
+		declare @sumPrice int
+		
+		select @sumPrice = sum(NHATKYBANHANG.SoLuong * GiaBan)
+		from MATHANG inner join NHATKYBANHANG on MATHANG.MaHang = NHATKYBANHANG.MaHang
+		where MATHANG.TenHang = @TenHang
+		return @sumPrice
+	end
+
+select * from MATHANG
+select * from NHATKYBANHANG
+select dbo.cauH('Hang 01') as TongTien
 
 
 
