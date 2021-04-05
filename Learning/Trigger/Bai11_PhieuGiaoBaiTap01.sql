@@ -102,7 +102,7 @@ select * from PHIEUXUAT
 --vẹn: MaSP có trong bảng sản phẩm chưa? Kiểm tra các ràng buộc dữ liệu: SoLuongN và
 --DonGiaN>0? Sau khi nhập thì SoLuong ở bảng SanPham sẽ được cập nhật theo
 
-create trigger cauA
+alter trigger cauA
 on NHAP
 for insert
 as
@@ -124,20 +124,89 @@ as
 						rollback transaction
 					end
 				else
-					update SANPHAM set SoLuong = SoLuong - @soLuongNhap from SANPHAM where MaSP = @maSanPham
+					update SANPHAM set SoLuong = SoLuong + @soLuongNhap from SANPHAM where MaSP = @maSanPham
 			end
 	end
 
 select * from SANPHAM
 select * from PHIEUNHAP
 select * from NHAP
-insert into NHAP values ('PN02', 'SP08', 0, 0) --Mã sản phẩm này không tồn tại
-insert into NHAP values ('PN02', 'SP01', 0, 5000) --Lỗi số lượng nhập <= 0
+--insert into NHAP values ('PN02', 'SP08', 0, 0) --Mã sản phẩm này không tồn tại
+--insert into NHAP values ('PN02', 'SP01', 0, 5000) --Lỗi số lượng nhập <= 0
 --insert into NHAP values ('PN01', 'SP01', 10, 0) --Lỗi đơn giá nhập <= 0
-insert into NHAP values ('PN01', 'SP01', 10, 5000) --Hợp lệ
+insert into NHAP values ('PN02', 'SP01', 10, 5000) --Hợp lệ
 select * from SANPHAM
 select * from PHIEUNHAP
 select * from NHAP
+
+--b. Tạo Trigger kiểm soát việc nhập dữ liệu cho bảng xuất, hãy kiểm tra các ràng buộc toàn
+--vẹn: MaSP có trong bảng sản phẩm chưa? kiểm tra các ràng buộc dữ liệu: SoLuongX <
+--SoLuong trong bảng SanPham? Sau khi xuất thì SoLuong ở bảng SanPham sẽ được cập
+--nhật theo.
+
+create trigger cauB
+on XUAT
+for insert
+as
+	begin
+		declare @maSanPham char(10)
+		declare @soLuong int
+		declare @soLuongXuat int
+		select @maSanPham = MaSP, @soLuongXuat = SoLuongXuat from inserted
+		select @soLuong = SoLuong from SANPHAM
+		if (not exists (select * from SANPHAM where MaSP = @maSanPham))
+			begin
+				raiserror (N'Error: Mã sản phẩm này không tồn tại. TRANSACTION!!!', 16, 1)
+				rollback transaction
+			end
+		else
+			begin
+				if (@soLuong < @soLuongXuat)
+					begin
+						raiserror (N'Error: Không đủ số lượng sản phẩm để xuất. TRANSACTION!!', 16, 1)
+						rollback transaction
+					end
+				else
+					update SANPHAM set SoLuong = SoLuong - @soLuongXuat where MaSP = @maSanPham
+			end
+	end
+
+select * from SANPHAM
+select * from PHIEUXUAT
+select * from XUAT
+--insert into XUAT values ('PX02', 'SP08', 150) --Mã sản phẩm này không tồn tại
+--insert into XUAT values ('PX02', 'SP01', 1000) --Lỗi số lượng trong kho < Số lượng xuất. Không đủ hàng
+insert into XUAT values ('PX01', 'SP01', 10) --Hợp lệ
+select * from SANPHAM
+select * from PHIEUXUAT
+select * from XUAT
+
+--c. Tạo Trigger kiểm soát việc xóa phiếu xuất, khi phiếu xuất xóa thì số lượng hàng trong
+--bảng SanPham sẽ được cập nhật tăng lên
+
+create trigger cauC
+on XUAT
+for delete
+as
+	begin
+		declare @maSanPhamXuat char(10)
+		declare @soLuongXuat int
+		select @maSanPhamXuat = MaSP, @soLuongXuat = SoLuongXuat from deleted
+		update SANPHAM set SoLuong = SoLuong + @soLuongXuat where MaSP = @maSanPhamXuat
+	end
+
+drop trigger cauC
+
+select * from SANPHAM
+select * from PHIEUXUAT
+select * from XUAT
+delete from PHIEUXUAT where SoHDX = 'PX01'
+select * from SANPHAM
+select * from PHIEUXUAT
+select * from XUAT
+
+
+
 
 
 
