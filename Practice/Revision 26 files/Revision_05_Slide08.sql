@@ -87,7 +87,7 @@ execute cau3 12, 2020
 --trong bảng Hang, mỗi khi thêm mới dữ liệu cho bảng HangBan. 
 --(Đưa ra thông báo lỗi nếu SoLuong>SLTon) 
 
-create trigger cay4
+create trigger cau4
 on HANGBAN
 for insert
 as
@@ -106,6 +106,7 @@ as
 			update HANG set SLTon = SLTon - @soLuongBan where MaHang = @maHang
 	end
 
+drop trigger cay4
 
 
 select * from HANG

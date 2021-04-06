@@ -25,9 +25,7 @@ create table HANGXUAT (
 	constraint second_fk_HANGXUAT foreign key (MaVT) references VATTU(MaVT) on update cascade on delete cascade
 )
 
-drop table VATTU
-drop table HDBAN
-drop table HANGXUAT
+
 
 insert into VATTU values ('VT01', 'Vat tu 01', 'cai', 15)
 insert into VATTU values ('VT02', 'Vat tu 02', 'chiec', 20)
@@ -149,6 +147,23 @@ select * from cau03('HD01')
 select * from cau03_cach2('HD01')
 select * from cau03('HD02')
 select * from cau03_cach2('HD02') -- Thứ Sáu
+
+-- Câu 4 (2.5đ): Hãy tạo thủ tục lưu trữ in ra tổng tiền vật tư xuất theo 
+--tháng và năm là bao nhiêu? (Với tham số vào là: Tháng và Năm). 
+
+create procedure cau4(@thang int, @nam int)
+as
+	begin
+		select SUM(SLBan * DonGia) as TongTien
+		from HDBAN inner join HANGXUAT on HDBAN.MaHD = HANGXUAT.MaHD
+		where @thang = MONTH(NgayXuat) and @nam = YEAR(NgayXuat)
+	end
+
+select * from VATTU
+select * from HDBAN
+select * from HANGXUAT
+execute cau4 10, 2020
+execute cau4 3, 2021
 
 
 

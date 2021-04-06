@@ -44,6 +44,11 @@ insert into BenhNhan values('BN05', 'Renekton', '10/06/2003', 'Nu', 5, 'K02')
 insert into BenhNhan values('BN06', 'Leblance', '08/05/1998', 'Nam', 7, 'K01')
 insert into BenhNhan values('BN07', 'Rengar', '07/25/1998', 'Nu', 7, 'K01')
 
+select * from BenhVien
+select * from KhoaKham
+select * from BenhNhan
+
+
 -- Cau 02: Tạo view đưa ra thống kê số bệnh nhân Nữ của từng khoa khám gồm: MaKhoa, TenKhoa, Số người.
 create view cau02
 as
@@ -70,3 +75,37 @@ as
 
 select dbo.cau03('Khoa 01') as 'Tong tien'
 select dbo.cau03('Khoa 02') as 'Tong tien'
+
+-- Câu 4: Tạo trigger thêm bệnh nhân trong bảng KhoaKham, mỗi khi thêm mới dữ liệu
+--cho bảng bệnh nhân nếu số bệnh nhân trong một khoa > 3 thì không cho thêm
+--và đưa ra cảnh báo.
+
+alter trigger cau4
+on BenhNhan
+for insert
+as
+	begin
+		declare @soBenhNhanHienTaiCuaKhoa int
+		declare @maKhoaThemBenhNhan char(10)
+		select @maKhoaThemBenhNhan = MaKhoa from inserted
+		select @soBenhNhanHienTaiCuaKhoa = COUNT(MaBN) from BenhNhan where MaKhoa = @maKhoaThemBenhNhan
+		if (@soBenhNhanHienTaiCuaKhoa >= 4)
+			begin
+				raiserror (N'Error: Khoa đã có nhiều hơn 3 bệnh nhân, không thể tiếp tục nhận thêm bệnh nhân.', 16, 1)
+				rollback transaction
+			end
+	end
+
+
+select * from BenhVien
+select * from KhoaKham
+select * from BenhNhan
+--insert into BenhNhan values('BN08', 'Garen', '07/25/1998', 'Nam', 10, 'K01') -- Khoa K01 đã có 4 bênh nhân, không thể nhận thêm. Lỗi
+insert into BenhNhan values('BN08', 'Garen', '07/25/1998', 'Nam', 10, 'K02') -- 
+select * from BenhVien
+select * from KhoaKham
+select * from BenhNhan
+
+
+
+
