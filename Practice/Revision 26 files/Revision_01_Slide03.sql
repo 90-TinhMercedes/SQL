@@ -97,6 +97,21 @@ select * from Lop
 select * from SinhVien
 execute cau4 19, 20, 'Lop 01'
 
+--Hoặc Câu 4: (3đ):
+--Tạo Hàm Đưa ra những sinh viên (của một khoa nào đó với tên khoa nhập từ bàn phím) 
+--gồm: MaSV, HoTen, Tuổi (năm hiện tại – năm sinh).
+
+create function cau4_function (@tenKhoa nvarchar(50))
+returns table 
+as
+	return
+		select MaSV, HoTen, YEAR(GETDATE()) - YEAR(NgaySinh) as Tuoi
+		from Khoa inner join Lop on Khoa.MaKhoa = Lop.MaKhoa
+		inner join SinhVien on Lop.MaLop = SinhVien.MaLop
+		where TenKhoa = @tenKhoa
 
 
-
+select * from Khoa
+select * from Lop
+select * from SinhVien
+select * from dbo.cau4_function('Khoa 01')
