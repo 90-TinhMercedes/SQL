@@ -49,9 +49,9 @@ select * from Lop
 select * from SinhVien
 
 -- Câu 2 (3 đ): Hãy tạo View đưa ra thống kê số lớp của từng khoa gồm các thông tin: TenKhoa, Số lớp.
-create view cau2 
+alter view cau2 
 as 
-	select TenKhoa, count(MaLop) as 'MaLop' from Khoa inner join Lop on Khoa.MaKhoa = Lop.MaKhoa
+	select TenKhoa, count(MaLop) as 'SoLop' from Khoa inner join Lop on Khoa.MaKhoa = Lop.MaKhoa
 	group by TenKhoa
 	
 select * from cau2 
@@ -77,4 +77,26 @@ select * from Lop
 select * from SinhVien
 select * from cau3('K01')
 select * from cau3('K02')
+
+--Câu 4 (3đ): Hãy tạo thủ tục lưu trữ tìm kiếm sinh viên theo khoảng tuổi và lớp (Với 3 tham số 
+--vào là: TuTuoi và DenTuoi và tên lớp). Kết quả tìm được sẽ đưa ra một danh sách 
+--gồm: MaSV, HoTen, NgaySinh,TenLop,TenKhoa, Tuoi. 
+
+create procedure cau4(@tuTuoi int, @denTuoi int, @tenLop nvarchar(50))
+as
+	begin
+		select MaSV, HoTen, NgaySinh, TenLop, TenKhoa, year(GETDATE()) - YEAR(SinhVien.NgaySinh) as Tuoi
+		from Khoa inner join Lop on Khoa.MaKhoa = Lop.MaKhoa
+		inner join SinhVien on Lop.MaLop = SinhVien.MaLop
+		where (year(GETDATE()) - YEAR(SinhVien.NgaySinh)) between @tuTuoi and @denTuoi
+		and TenLop = @tenLop
+	end
+
+select * from Khoa
+select * from Lop
+select * from SinhVien
+execute cau4 19, 20, 'Lop 01'
+
+
+
 

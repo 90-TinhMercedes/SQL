@@ -54,3 +54,77 @@ select * from HANG
 select * from HDBAN
 select * from HANGBAN
 select * from cau02
+
+--Câu 3 (2đ): Hãy tạo thủ tục lưu trữ tìm kiếm hàng theo tháng và năm 
+--(Với 2 tham số vào là: Thang và Nam). Kết quả tìm được sẽ đưa ra một 
+--danh sách gồm: MaHang, TenHang, NgayBan, SoLuong, NgayThu. 
+--Trong đó: Cột NgayThu sẽ là: chủ nhật, thứ hai, ..., 
+--thứ bảy (dựa vào giá trị của cột NgayBan)
+
+create procedure cau3 (@thang int, @nam int)
+as
+	begin
+		select HANGBAN.MaHang, TenHang, NgayBan, SoLuong, case DATEPART(WEEKDAY, HDBAN.NgayBan)
+		when 1 then 'Sunday'
+		when 2 then 'Monday'
+		when 3 then 'Tuesday'
+		when 4 then 'Wednesday'
+		when 5 then 'Thurday'
+		when 6 then 'Friday'
+		when 7 then 'Saturday' end
+		from HANGBAN inner join HANG on HANG.MaHang = HANGBAN.MaHang
+		inner join HDBAN on HDBAN.MaHD = HANGBAN.MaHD
+		where MONTH(NgayBan) = @thang and YEAR(NgayBan) = @nam
+	end
+
+select * from HANG
+select * from HDBAN
+select * from HANGBAN
+execute cau3 8, 2019
+execute cau3 12, 2020
+
+--Câu 4 (3đ): Hãy tạo Trigger để tự động giảm số lượng tồn (SLTon) 
+--trong bảng Hang, mỗi khi thêm mới dữ liệu cho bảng HangBan. 
+--(Đưa ra thông báo lỗi nếu SoLuong>SLTon) 
+
+create trigger cay4
+on HANGBAN
+for insert
+as
+	begin
+		declare @soLuongTon int
+		declare @soLuongBan int
+		declare @maHang char(10)
+		select @soLuongTon = SLTon from HANG
+		select @soLuongBan = SoLuong, @maHang = MaHang from inserted
+		if (@soLuongTon < @soLuongBan)
+			begin
+				raiserror (N'Error: Không đủ hàng trong kho để bán. TRANSACTION!!', 16, 1)
+				rollback transaction 
+			end
+		else
+			update HANG set SLTon = SLTon - @soLuongBan where MaHang = @maHang
+	end
+
+
+
+select * from HANG
+select * from HDBAN
+select * from HANGBAN
+--insert into HANGBAN values ('HD01', 'H01', 15000, 100) -- Số lượng trong kho không đủ. Lỗi
+insert into HANGBAN values ('HD02', 'H02', 20000, 4) -- Hợp lệ
+select * from HANG
+select * from HDBAN
+select * from HANGBAN
+
+
+
+
+
+
+
+
+
+
+
+

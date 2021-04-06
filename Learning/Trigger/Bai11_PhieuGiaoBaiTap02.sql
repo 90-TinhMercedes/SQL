@@ -132,6 +132,8 @@ as
 			end
 	end
 
+drop trigger cauA
+
 --test
 insert into XUAT values ('PX01', 'SP01', 10) --Hợp lệ
 insert into XUAT values ('PX02', 'SP01', 10) --Hợp lệ
@@ -139,11 +141,82 @@ insert into XUAT values ('PX03', 'SP01', 10) --Hợp lệ
 select * from HANGSX
 select * from SANPHAM
 select * from XUAT
-update XUAT set SoLuongXuat = SoLuongXuat + 5 where MaSP = 'SP01' -- thực hiện thay đổi nhiều hơn 1 dòng. Loại
+--update XUAT set SoLuongXuat = SoLuongXuat + 5 where MaSP = 'SP01' -- thực hiện thay đổi nhiều hơn 1 dòng. Loại
 update XUAT set SoLuongXuat = SoLuongXuat + 5 where SoHDX = 'PX01' -- hợp lệ
+update XUAT set SoLuongXuat = SoLuongXuat + 5 where SoHDX = 'PX02' -- hợp lệ
 select * from HANGSX
 select * from SANPHAM
-select * from PHIEUXUAT
+select * from XUAT
+
+--b. Tạo Trigger cho việc cập nhật lại số lượng Nhập trong bảng Nhập, Hãy kiểm tra xem số
+--bản ghi thay đổi >1 bản ghi hay không? nếu thỏa mãn thì cho phép Update bảng Nhập và
+--Update lại SoLuong trong bảng SanPham
+
+alter trigger cauB
+on NHAP
+for update
+as
+	begin
+		if (select count(*) from inserted) > 1
+			begin
+				raiserror(N'Error: Không được phép thực hiện thay đổi nhiều hơn 01 bản ghi. TRANSACTION!!', 16, 1)
+				rollback transaction
+			end
+		else 
+			begin
+				declare @soLuongNhap int
+				declare @soLuongThuc int
+				declare @maSanPham char(10)
+				select @soLuongThuc = SoLuongNhap from deleted
+				select @soLuongNhap = SoLuongNhap, @maSanPham = MaSP from inserted
+				update SANPHAM set SoLuong = SoLuong + (@soLuongNhap - @soLuongThuc) where MaSP = @maSanPham
+			end
+
+	end
+
+
+insert into NHAP values ('PN01', 'SP02', 10, 15000) --Hợp lệ
+insert into NHAP values ('PN02', 'SP02', 10, 10000) --Hợp lệ
+insert into NHAP values ('PN03', 'SP02', 10, 15000) --Hợp lệ
+
+select * from SANPHAM
+select * from PHIEUNHAP
+select * from NHAP
+--update NHAP set SoLuongNhap = SoLuongNhap + 5 where MaSP = 'SP02' -- thực hiện thay đổi nhiều hơn 1 dòng. Loại
+update NHAP set SoLuongNhap = SoLuongNhap + 5 where SoHDN = 'PN02' -- hợp lệ
+select * from SANPHAM
+select * from PHIEUNHAP
+select * from NHAP
+
+
+--c. Tạo Trigger kiểm soát việc xóa phiếu nhập, khi phiếu nhập xóa thì số lượng hàng trong
+--bảng SanPham sẽ được cập nhật giảm xuống.
+
+create trigger cauC
+on NHAP
+for delete
+as
+	begin
+		declare @maSanPhamXoa char(10)
+		declare @soLuongNhap int
+		select @maSanPhamXoa = MaSP, @soLuongNhap = SoLuongNhap from deleted
+		update SANPHAM set SoLuong = SoLuong - @soLuongNhap where MaSP = @maSanPhamXoa
+	end
+
+select * from SANPHAM
+select * from PHIEUNHAP
+select * from NHAP
+delete from NHAP where SoHDN = 'PN01'
+select * from SANPHAM
+select * from PHIEUNHAP
+select * from NHAP
+
+
+
+
+
+
+
 
 
 
