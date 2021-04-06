@@ -184,6 +184,7 @@ select * from XUAT
 --c. Tạo Trigger kiểm soát việc xóa phiếu xuất, khi phiếu xuất xóa thì số lượng hàng trong
 --bảng SanPham sẽ được cập nhật tăng lên
 
+-- cách của cô
 create trigger cauC
 on XUAT
 for delete
@@ -196,6 +197,24 @@ as
 	end
 
 drop trigger cauC
+
+-- cách khác (cách này sai @ @ )
+--create trigger cauC
+--on PHIEUXUAT
+--for delete
+--as
+--	begin
+--		declare @soHDX char(10)
+--		declare @maSanPhamXuat char(10)
+--		declare @soLuongXuat int
+--		select @soHDX = SoHDX from deleted
+--		select @maSanPhamXuat = MaSP, @soLuongXuat = SoLuongXuat 
+--		from XUAT inner join PHIEUXUAT on XUAT.SoHDX = PHIEUXUAT.SoHDX where XUAT.SoHDX = @soHDX
+--		update SANPHAM set SoLuong = SoLuong + @soLuongXuat where MaSP = @maSanPhamXuat
+--	end
+
+insert into PHIEUXUAT values ('PX01', '06/25/2020', 'NV01') --lỡ test xoá đi rồi thì phải add lại dòng này để test cách khác chứ :v
+insert into XUAT values ('PX01', 'SP01', 10) --Hợp lệ
 
 select * from SANPHAM
 select * from PHIEUXUAT
