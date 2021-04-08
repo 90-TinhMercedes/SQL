@@ -80,6 +80,8 @@ select dbo.cau03('Khoa 02') as 'Tong tien'
 --cho bảng bệnh nhân nếu số bệnh nhân trong một khoa > 3 thì không cho thêm
 --và đưa ra cảnh báo.
 
+-- Câu này chưa fix lại, hiểu sai đề :( 
+
 alter trigger cau4
 on BenhNhan
 for insert
