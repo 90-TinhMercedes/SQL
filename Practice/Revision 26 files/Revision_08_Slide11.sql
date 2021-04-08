@@ -68,13 +68,44 @@ as
 		return @Result
 	end
 
-select  dbo.cau03('2019') as TongTIen --131.000
-select  dbo.cau03('2020') as TongTIen -- 138.000
-select  dbo.cau03('2021') as TongTIen -- NULL
+select  dbo.cau03('2019') as TongTien
+select  dbo.cau03('2020') as TongTien 
+select  dbo.cau03('2021') as TongTien -- NULL
 
 
+--Câu 4 (3đ): Hãy tạo Trigger để tự động giảm số lượng tồn (SLTon) trong bảng Hang, 
+--mỗi khi thêm mới dữ liệu cho bảng HangBan. (Đưa ra thông báo lỗi nếu SoLuong>SLTon) 
 
+create trigger cau4
+on HANGBAN
+for insert
+as
+	begin
+		declare @soLuongTon int
+		declare @soLuongBan int
+		declare @maHangBan char(10)
+		select @soLuongTon = SLTon from HANG
+		select @maHangBan = MaHang, @soLuongBan = SoLuong from inserted
+		if (@soLuongTon < @soLuongBan)
+			begin
+				raiserror (N'Error: Không đủ số lượng tồn để bán.', 16, 1)
+				rollback transaction
+			end
+		else
+			update HANG set SLTon = SLTon - @soLuongBan where MaHang = @maHangBan
+	end
 
+select * from HANG
+select * from HDBAN
+select * from HANGBAN
+--insert into HANGBAN values ('HD01', 'H01', 15000, 200) -- Số lượng tồn trong kho không đủ. Lỗi
+insert into HANGBAN values ('HD02', 'H02', 20000, 3) -- hợp lệ
+insert into HANGBAN values ('HD02', 'H01', 17000, 3) -- hợp lệ
+insert into HANGBAN values ('HD01', 'H02', 9000, 4) -- hợp lệ
+insert into HANGBAN values ('HD01', 'H01', 15000, 2) -- hợp lệ
+select * from HANG
+select * from HDBAN
+select * from HANGBAN
 
 
 

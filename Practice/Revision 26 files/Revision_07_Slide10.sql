@@ -79,7 +79,55 @@ select * from BENHNHAN
 select * from cau03_function('K01')
 select * from cau03_function('K02')
 
+--Câu 3 (2đ): Hãy tạo thủ tục lưu trữ in ra tổng số tiền thu được 
+--của từng khoa khám bệnh là bao nhiêu?(Với 
+--tham số vào là: MaKhoa, Tien=SoNgayNV*80000).
+
+create procedure cau3 (@maKhoa char(10))
+as
+	begin
+		--declare @tongTien int
+		select SUM(SoNgayNV * 80000) as TongTien
+		from KHOAKHAM inner join BENHNHAN on KHOAKHAM.MaKhoa = BENHNHAN.MaKhoa
+		where @maKhoa = BENHNHAN.MaKhoa
+	end
 
 
+select * from BENHVIEN
+select * from KHOAKHAM
+select * from BENHNHAN
+execute cau3 'K01' 
+execute cau3 'K02'
 
+--Câu 4 (3đ): Hãy tạo Trigger để tự động tăng số bệnh nhân trong bảng KhoaKham, 
+--mỗi khi thêm mới dữ liệu cho bảng BenhNhan. 
+--Nếu số bệnh nhân trong 1 khoa khám > 10 thì không cho thêm và đưa ra cảnh báo
+
+create trigger cau4
+on BENHNHAN
+for insert
+as
+	begin
+		declare @maKhoaThemBenhNhan char(10)
+		declare @soBenhNhanHienCo int
+		select @maKhoaThemBenhNhan = MaKhoa from inserted
+		select @soBenhNhanHienCo = SoBenhNhan from KHOAKHAM where MaKhoa = @maKhoaThemBenhNhan
+		if (@soBenhNhanHienCo >= 10)
+			begin
+				raiserror (N'Error: Khoa đã có 10 bệnh nhân, không thể nhận thêm.', 16, 1)
+				rollback transaction
+			end
+		else
+			update KHOAKHAM set SoBenhNhan = SoBenhNhan + 1 where MaKhoa = @maKhoaThemBenhNhan 
+	end
+
+select * from BENHVIEN
+select * from KHOAKHAM
+select * from BENHNHAN
+insert into BENHNHAN values ('BN09', 'Galio', '08/17/1991', 0, 5, 'K02') -- nâng tổng số bệnh nhân khoa 02 lên 09 bệnh nhân
+insert into BENHNHAN values ('BN10', 'Samira', '08/17/1991', 0, 5, 'K02') -- nâng tổng số bệnh nhân khoa 02 lên 10 bệnh nhân
+insert into BENHNHAN values ('BN11', 'Oriana', '08/17/1991', 0, 5, 'K02') -- Khoa 02 đã có 10 bệnh nhân, không thể thêm
+select * from BENHVIEN
+select * from KHOAKHAM
+select * from BENHNHAN
 

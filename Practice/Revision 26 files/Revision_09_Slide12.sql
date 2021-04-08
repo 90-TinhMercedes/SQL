@@ -83,3 +83,62 @@ select * from cau03_function(25, 27)
 select * from cau03_function(20, 21)
 select * from cau03_function(19, 20)
 
+
+--Câu 3(2đ): Hãy tạo thủ tục lưu trữ tìm kiếm sinh viên theo khoảng tuổi 
+--(Với 2 tham số vào là: TuTuoi và DenTuoi). Kết quả tìm được sẽ đưa ra một danh sách 
+--gồm: MaSV, HoTen, NgaySinh,TenLop,TenKhoa, Tuoi.  
+
+create procedure cau3 (@tuTuoi int, @denTuoi int)
+as
+	begin
+		select MaSV, HoTen, NgaySinh, TenLop, TenKhoa, YEAR(GETDATE()) - YEAR(NgaySinh) as Tuoi
+		from KHOA inner join LOP on KHOA.MaKhoa = LOP.MaKhoa
+		inner join SINHVIEN on LOP.MaLop = SINHVIEN.MaLop
+		where @tuTuoi <= YEAR(GETDATE()) - YEAR(NgaySinh) and YEAR(GETDATE()) - YEAR(NgaySinh) <= @denTuoi
+	end
+
+select * from KHOA
+select * from LOP
+select * from SINHVIEN
+execute cau3 19, 20
+execute cau3 22, 30
+
+
+--Câu 4(3đ): Hãy tạo Trigger để tự động tăng sĩ số sinh viên trong bảng lớp, 
+--mỗi khi thêm mới dữ liệu cho bảng Sinh viên. 
+--Nếu sĩ số trong 1 lớp > 20 thì không cho thêm và đưa ra cảnh báo.
+
+create trigger cau4
+on SINHVIEN
+for insert
+as
+	begin
+		declare @siSoHienTai int
+		declare @maLopThemSinhVien char(10)
+		select @siSoHienTai = SiSo from LOP
+		select @maLopThemSinhVien = MaLop from inserted
+		if (@siSoHienTai > 20)
+			begin
+				raiserror (N'Error: Lớp đã có nhiều hơn 20 sinh viên, không thể thêm.', 16, 1)
+				rollback transaction
+			end
+		else
+			update LOP set SiSo = SiSo + 1 where MaLop = @maLopThemSinhVien
+	end
+
+select * from KHOA
+select * from LOP
+select * from SINHVIEN
+--insert into SINHVIEN values('SV09', 'Tinh Sivir', '06/27/1995', 0, 'L03')
+insert into SINHVIEN values('SV10', 'Tinh Malphite', '06/27/1995', 0, 'L03')
+select * from KHOA
+select * from LOP
+select * from SINHVIEN
+
+
+
+
+
+
+
+
