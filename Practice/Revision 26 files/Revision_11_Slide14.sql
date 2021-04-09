@@ -92,4 +92,46 @@ select * from cau3('HD01')
 select * from cau3('HD02')
 
 
+--Câu 4(3đ): Hãy tạo Trigger để tự động giảm số lượng còn (SLCon) trong bảng VatTu, 
+--mỗi khi thêm mới dữ liệu cho bảng HangXuat. (Đưa ra thông báo lỗi nếu SLBan>SLCon) 
+ create trigger cau4
+ on HANGXUAT
+ for insert
+ as
+	begin
+		declare @soLuongCon int
+		declare @soLuongBan int
+		declare @maVatTuBan char(10)
+		select @soLuongBan = SLBan, @maVatTuBan = MaVT from inserted
+		select @soLuongCon = SLCon from VATTU
+		if (@soLuongCon < @soLuongBan)
+			begin
+				raiserror (N'Error: Không đủ hàng trong kho để bán.', 16, 1)
+				rollback transaction
+			end
+		else
+			update VATTU set SLCon = SLCon - @soLuongBan where MaVT = @maVatTuBan
+	end
+
+select * from VATTU
+select * from HDBAN
+select * from HANGXUAT
+--insert into HANGXUAT values ('HD02', 'VT02', 21000, 500) -- Số lượng trong kho không đủ để bán
+insert into HANGXUAT values ('HD02', 'VT02', 10000, 10) -- hợp lệ
+select * from VATTU
+select * from HDBAN
+select * from HANGXUAT
+
+
+
+
+
+
+
+
+
+
+
+
+
 
