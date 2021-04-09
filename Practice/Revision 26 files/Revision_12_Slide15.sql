@@ -75,8 +75,14 @@ as
 	begin
 		select MaKhoa, SUM(SoNgayNV * 80000) as TongTien
 		from BENHNHAN
-
+		where MaKhoa = @maKhoa
+		group by MaKhoa
 	end
+
+select * from BENHVIEN
+select * from KHOAKHAM
+select * from BENHNHAN
+execute cau3 'K01'
 
 
 
