@@ -52,25 +52,39 @@ select * from BENHVIEN
 select * from KHOAKHAM
 select * from BENHNHAN
 
---Câu 2 (2đ): Hãy tạo View đưa ra thống kê số bệnh nhân Nữ 
---của từng khoa khám gồm các thông tin: MaKhoa, TenKhoa, Số_người.
-create view cau2
+--Câu 2(2đ): Đưa ra những bệnh nhân có tuổi cao nhất gồm: MaBN, HoTen, Tuổi.
+
+select MaBN, HoTen, MAX(YEAR(GETDATE()) - YEAR(NgaySinh)) as Tuoi
+from BENHNHAN
+where (YEAR(GETDATE()) - YEAR(NgaySinh)) = (select MAX(YEAR(GETDATE()) - YEAR(NgaySinh)) from BENHNHAN)
+group by MaBN, HoTen
+ 
+--Câu 3(2đ): Viết hàm với tham số truyền vào là MaBN, hàm trả về một bảng 
+--gồm các thông tin:MaBN, HoTen, NgaySinh, GioiTinh (là “Nam“ hoặc “Nữ“), TenKhoa, TenBV.
+
+create procedure cau3 (@maBenhNhan char(10))
 as
-	select KHOAKHAM.MaKhoa, TenKhoa, COUNT(MaBN) as SoNguoi
-	from KHOAKHAM inner join BENHNHAN on KHOAKHAM.MaKhoa = BENHNHAN.MaKhoa
-	where GioiTinh = 0
-	group by KHOAKHAM.MaKhoa, TenKhoa
+	begin
+		select MaBN, HoTen, NgaySinh, case GioiTinh
+		when 0 then 'Female'
+		when 1 then 'Male' end as GioiTinh
+		from BENHNHAN
+		where MaBN = @maBenhNhan
+	end
 
 select * from BENHVIEN
 select * from KHOAKHAM
 select * from BENHNHAN
-select * from cau2
+execute cau3 'BN02'
+execute cau3 'BN03'
+execute cau3 'BN05'
 
 
---Câu 3 (2đ): Hãy tạo thủ tục lưu trữ in ra tổng số tiền thu được của từng khoa khám bệnh 
+
+--Câu 3_2 (2đ): Hãy tạo thủ tục lưu trữ in ra tổng số tiền thu được của từng khoa khám bệnh 
 --là bao nhiêu?(Với tham số vào là: MaKhoa, Tien=SoNgayNV*80000).
 
-create procedure cau3 (@maKhoa char(15))
+create procedure cau3_2 (@maKhoa char(15))
 as
 	begin
 		select MaKhoa, SUM(SoNgayNV * 80000) as TongTien
@@ -82,11 +96,40 @@ as
 select * from BENHVIEN
 select * from KHOAKHAM
 select * from BENHNHAN
-execute cau3 'K01'
+execute cau3_2 'K01'
+execute cau3_2 'K02'
+execute cau3_2 'K03'
 
 
+--Câu 4 (3đ): Hãy tạo Trigger để tự động tăng số bệnh nhân trong bảng KhoaKham, 
+--mỗi khi thêm mới dữ liệu cho bảng BenhNhan. Nếu số bệnh nhân 
+--trong 1 khoa khám > 6 thì không cho thêm và đưa ra cảnh báo
 
+create trigger cau4
+on BENHNHAN
+for insert
+as
+	begin
+		declare @soBenhNhanHienTai int
+		declare @maKhoaThemBenhNhan char(10)
+		select @maKhoaThemBenhNhan = MaKhoa from inserted
+		select @soBenhNhanHienTai = SoBenhNhan from KHOAKHAM
+		where MaKhoa = @maKhoaThemBenhNhan
+		if (@soBenhNhanHienTai > 6)
+			begin
+				raiserror (N'Error: Khoa đã có nhiều hơn 6 bệnh nhân, không thể thêm.', 16, 1)
+				rollback transaction 
+			end
+		else
+			update KHOAKHAM set SoBenhNhan = SoBenhNhan + 1 where MaKhoa = @maKhoaThemBenhNhan
+	end
 
+select * from BENHVIEN
+select * from KHOAKHAM
+select * from BENHNHAN
+insert into BENHNHAN values ('BN06', 'Draven', '04/12/1992', 1, 6, 'K02') -- Khoa 02 có số bệnh nhân hiện tại: 8. Không thể thêm
+insert into BENHNHAN values ('BN07', 'Aatrox', '06/25/1992', 1, 3, 'K03') -- Khoa 03 có số bệnh nhân hiện tại: 6. Có thể thêm
+insert into BENHNHAN values ('BN08', 'Renekton', '08/17/1991', 0, 5, 'K03') -- Khoa 03 có số bệnh nhân hiện tại: 7. Không thể thêm
 
 
 
