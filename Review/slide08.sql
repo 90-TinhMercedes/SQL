@@ -190,3 +190,20 @@ update HDBAN set NgayBan = '04/15/2021' where HoTenKhach = 'Tinh Main Veigar'
 select * from HANG
 select * from HDBAN
 select * from HANGBAN
+
+-- fix cho Nguyên
+create trigger cau04
+on HDBAN
+for insert
+as
+	begin
+		declare @ngayHomNay date
+		declare @ngayBan date
+		set @ngayHomNay = GETDATE()
+		select @ngayBan = NgayBan from inserted
+		if (@ngayBan != @ngayHomNay)
+			begin
+				raiserror (N'Ngày bán không trùng với ngày hôm nay.', 16, 1)
+				rollback transaction
+			end	
+	end
