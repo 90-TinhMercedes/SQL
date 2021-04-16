@@ -87,8 +87,23 @@ select dbo.cau03('S01') as SachChuaDuocMuonLanNao
 select dbo.cau03('S02') as SachChuaDuocMuonLanNao
 select dbo.cau03('S03') as SachChuaDuocMuonLanNao
 
+--Câu 4 (3đ): Hãy tạo trigger để cập nhật số lượng tồn của sách giảm khi thêm PM và Sachmuon.
+create trigger cau04
+on SACHMUON
+for insert
+as
+	begin
+		declare @maSachMuon char(10)
+		select @maSachMuon = MaSach from inserted
+		update SACH set SoLuongTon = SoLuongTon - 1 where MaSach = @maSachMuon
+	end
 
-
-
+select * from SACH
+select * from PHIEUMUON
+select * from SACHMUON
+insert into SACHMUON values ('PM02', 'S03', 10)
+select * from SACH
+select * from PHIEUMUON
+select * from SACHMUON
 
 
