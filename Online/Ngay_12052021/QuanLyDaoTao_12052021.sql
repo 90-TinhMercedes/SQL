@@ -103,13 +103,14 @@ as
 	begin
 		declare @maHV char(10)
 		select @maHV = MaHV from deleted
-		if (not exists (select * from HOCVIEN where MaHV = @maHV))
-			begin
-				raiserror (N'Không tồn tại học viên này.', 16, 1)
-				rollback transaction
-			end
-		else
-			delete from HOCVIEN
+		--if (not exists (select * from HOCVIEN where MaHV = @maHV))
+		--	begin
+		--		raiserror (N'Không tồn tại học viên này.', 16, 1)
+		--		rollback transaction
+		--	end
+		ALTER TABLE DIEM NOCHECK CONSTRAINT FK_DIEM_01
+		delete from HOCVIEN where MaHV = @maHV
+		delete from DIEM where MaHV = @maHV	
 	end
 
 
@@ -117,10 +118,17 @@ as
 insert into HOCVIEN values ('HV01', 'Hoc Vien 01', 'Dia chi 01', '12/25/2003')
 insert into HOCVIEN values ('K005', 'Vu Linh Chi', 'Ha Dong', '12/07/1990')
 
+
 select * from HOCVIEN
+select * from DIEM
 --delete from HOCVIEN where MaHV = 'HV02' -- Không tồn tại học viên có mà HV02
-delete from HOCVIEN where MaHV = 'HV01' -- hợp lệ
+delete from HOCVIEN where MaHV = 'K005' -- hợp lệ
 select * from HOCVIEN
+select * from DIEM
+
+
+-- cau 05:
+
 
 
 
