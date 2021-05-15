@@ -72,7 +72,7 @@ alter table DIEM
 	add TongDiem float
 
 alter trigger trgAfter_Diem on DIEM
-for insert
+for insert, update
 as
 	begin
 		declare @diemPra float, @diemQFX float
@@ -88,6 +88,7 @@ select * from DIEM
 --select * from HOCVIEN
 --delete from DIEM where MaHV = 'K005' and MaMH = 'MH01'
 insert into DIEM values ('K005', 'MH01', 7.5, 2.6, '12/18/2020', 0)
+update DIEM set DiemPra = 8 where MaHV = 'K005' and MaMH = 'MH01' -- Update lại DiemPra
 select * from DIEM
 
 
