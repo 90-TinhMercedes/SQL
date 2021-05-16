@@ -39,6 +39,7 @@ select * from PHIEUMUON
 select * from SACHMUON
 
 
+
 -- cau 02: 
 alter procedure cau2(@ngay int, @thang int, @nam int)
 as
@@ -60,8 +61,43 @@ execute cau2 10, 05, 2021 -- không có dòng nào quá hạn
 execute cau2 11, 05, 2021 -- PM02 x S01 quá hạn
 execute cau2 14, 05, 2021 -- có 2 dòng quá hạn: PM01 x S01 và PM02 x S02
 execute cau2 25, 05, 2021 -- cả 3 dòng quá hạn
+
+
+-- cau 03:
+create trigger cau03 on SACHMUON
+for insert
+as
+	begin
+		declare @soNgayMuon int
+		declare @maSach char(10)
+		select @soNgayMuon = SoNgayMuon, @maSach = MaSach from SACHMUON
+		if (@soNgayMuon <= 4)
+			begin
+				raiserror(N'Số ngày mượn phải > 4.', 16, 1)
+				rollback transaction
+			end
+		else 
+			update SACH set SLTon = SLTon - 1 where MaSach = @maSach
+	end
+
+
+select * from SACH
 select * from PHIEUMUON
 select * from SACHMUON
+--insert into SACHMUON values ('PM02', 'S02', 3) --Số ngày mượn không hợp lệ
+insert into SACHMUON values ('PM02', 'S02', 6) --Số ngày mượn hợp lệ
+select * from SACH
+select * from PHIEUMUON
+select * from SACHMUON
+
+
+
+
+
+
+
+
+
 
 
 
