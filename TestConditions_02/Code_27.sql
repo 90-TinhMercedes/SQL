@@ -1,4 +1,4 @@
-create database condition_02_code_27
+﻿create database condition_02_code_27
 
 use condition_02_code_27
 
@@ -51,13 +51,15 @@ as
 		select @tongSoSach = COUNT (SACHMUON.MaSach)
 		from SACHMUON inner join PHIEUMUON on SACHMUON.MaPM = PHIEUMUON.MaPM
 		where DATEADD(DAY, SoNgayMuon, NgayM) < @ngayNhap
-		group by NgayM
 		print @tongSoSach
 	end
 
 select * from PHIEUMUON
 select * from SACHMUON
-execute cau2 25, 05, 2021
+execute cau2 10, 05, 2021 -- không có dòng nào quá hạn
+execute cau2 11, 05, 2021 -- PM02 x S01 quá hạn
+execute cau2 14, 05, 2021 -- có 2 dòng quá hạn: PM01 x S01 và PM02 x S02
+execute cau2 25, 05, 2021 -- cả 3 dòng quá hạn
 select * from PHIEUMUON
 select * from SACHMUON
 
