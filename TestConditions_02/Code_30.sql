@@ -1,4 +1,4 @@
-create database condition_02_code_30
+﻿create database condition_02_code_30
 
 use condition_02_code_30
 
@@ -70,13 +70,22 @@ as
 		declare @tuoi int, @maLop char(10), @siSoHienTai int
 		select @maSinhVienXoa = MaSV, @tuoi = YEAR(GETDATE()) - YEAR(NgaySinh), @maLop = MaLop from deleted
 		select @siSoHienTai = COUNT(MaSV) from SINHVIEN where MaLop = @maLop
-		update LOP set SiSo = @siSoHienTai where MaLop = @maLop
+		if (@tuoi >= 18) 
+			begin
+				raiserror(N'Sinh viên có tuổi >= 18 không được xoá.', 16, 1)
+				rollback transaction
+			end 
+		else
+			update LOP set SiSo = @siSoHienTai where MaLop = @maLop
 	end
 
+update LOP set SiSo = 3 where MaLop = 'L01'
+insert into SINHVIEN values ('SV01', 'Sinh Vien 01', '10/25/2001', 0, 'L01')
 
 select * from LOP
 select * from SINHVIEN
-delete SINHVIEN where MaSV = 'SV01'
+--delete SINHVIEN where MaSV = 'SV01' -- sinh viên có tuổi = 20. Không hợp lệ.
+delete SINHVIEN where MaSV = 'SV04' -- sinh viên có tuổi = 16. Hợp lệ.
 select * from LOP
 select * from SINHVIEN
 
