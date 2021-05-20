@@ -76,9 +76,23 @@ execute cau02 'S01', '05/25/2021' -- ngày xuất bản không hợp lệ
 execute cau02 'S01', '05/19/2021' -- hợp lệ
 select * from SACH
 
+-- cau 03:
+create trigger cau03 on SACH
+for insert 
+as
+	begin
+		declare @namXuatBanInsert int
+		declare @namHienTai int
+		set @namHienTai = YEAR(GETDATE())
+		select @namXuatBanInsert = YEAR(NgayXB) from inserted
+		if(@namXuatBanInsert > @namHienTai)
+			begin
+				raiserror(N'Năm xuất bản > 2021. Không hợp lệ.', 16, 1)
+				rollback transaction
+			end
+	end
 
-
-
-
-
-
+select * from SACH
+--insert into SACH values ('S04', 'Sach 04', 100, 'TG01', '10/25/2022') -- Năm 2022 không hợp lệ
+insert into SACH values ('S04', 'Sach 04', 100, 'TG01', '04/15/2021') -- Năm 2022 không hợp lệ
+select * from SACH

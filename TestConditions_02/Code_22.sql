@@ -96,33 +96,3 @@ select * from CUNGUNG
 insert into CUNGUNG values ('CTY03', 'SP01', 20) -- Hợp lệ
 select * from SANPHAM
 select * from CUNGUNG
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

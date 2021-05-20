@@ -88,16 +88,3 @@ select * from SINHVIEN
 delete SINHVIEN where MaSV = 'SV04' -- sinh viên có tuổi = 16. Hợp lệ.
 select * from LOP
 select * from SINHVIEN
-
-
-
-
-
-
-
-
-
-
-
-
-

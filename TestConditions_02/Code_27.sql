@@ -89,33 +89,3 @@ insert into SACHMUON values ('PM02', 'S02', 6) --Số ngày mượn hợp lệ
 select * from SACH
 select * from PHIEUMUON
 select * from SACHMUON
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

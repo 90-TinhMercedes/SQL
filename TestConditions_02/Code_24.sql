@@ -89,18 +89,3 @@ as
 select * from NHANVIEN
 select * from DUAN
 select * from THAMGIA
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
