@@ -1,4 +1,4 @@
-create database condition_02_code_21
+﻿create database condition_02_code_21
 
 use condition_02_code_21
 
@@ -44,6 +44,37 @@ select * from NXB
 select * from XUATSACH
 
 
+-- cau 02:
+create procedure cau02(@maSach char(10), @ngayXB date)
+as
+	begin
+		if(not exists (select * from SACH where MaSach = @maSach))
+			begin
+				print N'Không tồn tại sách có mã: ' + @maSach
+			end
+		else
+			begin
+				declare @toDay date
+				set @toDay = GETDATE()
+				if(@ngayXB >= @toDay)
+					begin
+						print N'Không thể sửa do ngày xuất bản >= ngày hôm nay.'
+					end
+				else
+					begin
+						update SACH set NgayXB = @ngayXB where MaSach = @maSach
+					end
+			end
+	end
+
+-- Hiện tại đang test tại ngày 20/05/2021
+
+select * from SACH
+execute cau02 'S05', '05/20/2021' -- không tồn tại mẫ sách S01. Không hợp lệ
+execute cau02 'S01', '05/20/2021' -- ngày xuất bản không hợp lệ
+execute cau02 'S01', '05/25/2021' -- ngày xuất bản không hợp lệ
+execute cau02 'S01', '05/19/2021' -- hợp lệ
+select * from SACH
 
 
 
