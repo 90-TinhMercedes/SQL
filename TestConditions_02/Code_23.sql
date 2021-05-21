@@ -1,4 +1,4 @@
-create database condition_02_code_23
+﻿create database condition_02_code_23
 
 use condition_02_code_23
 
@@ -63,3 +63,32 @@ select * from CUNGUNG
 execute cau02 'Cong Ty 01'
 execute cau02 'Cong Ty 02'
 execute cau02 'Cong Ty 03'
+
+
+-- cau 03:
+create trigger cau03 on CUNGUNG
+for update
+as
+	begin
+		declare @soLuongCungUngUpdate int, @soLuongCungUngOld int, @maSanPhamUpdate char(10)
+		declare @soLuongTon int
+		select @soLuongCungUngUpdate = SoLuongCungUng, @maSanPhamUpdate = MaSP from inserted
+		select @soLuongCungUngOld = SoLuongCungUng from deleted
+		select @soLuongTon = SoLuong from SANPHAM
+		if ((@soLuongCungUngUpdate - @soLuongCungUngOld) > @soLuongTon)
+			begin
+				raiserror(N'Hàng trong kho không đủ để cung ứng.', 16, 1)
+				rollback transaction
+			end
+		else
+			update SANPHAM set SoLuong = SoLuong - (@soLuongCungUngUpdate - @soLuongCungUngOld) 
+			where MaSP = @maSanPhamUpdate
+	end
+
+select * from SANPHAM
+select * from CUNGUNG
+--update CUNGUNG set SoLuongCungUng = 500 where MaCT = 'CTY01' and MaSP = 'SP01' -- (Số lượng update - số lượng hiện tại) > số lượng tồn. Không hợp lệ
+--update CUNGUNG set SoLuongCungUng = 50 where MaCT = 'CTY01' and MaSP = 'SP01' -- (Số lượng update - số lượng hiện tại) < số lượng tồn. Hợp lệ
+update CUNGUNG set SoLuongCungUng = 40 where MaCT = 'CTY01' and MaSP = 'SP01' -- (Số lượng update - số lượng hiện tại) < số lượng tồn. Hợp lệ
+select * from SANPHAM
+select * from CUNGUNG

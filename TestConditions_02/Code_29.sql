@@ -1,0 +1,3 @@
+create database condition_02_code_29
+
+use condition_02_code_29

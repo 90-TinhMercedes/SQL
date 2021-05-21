@@ -61,8 +61,9 @@ execute cau02 15, 20, 'Lop 01'
 execute cau02 15, 20, 'Lop 02'
 
 
+
 -- cau 03:
-alter trigger cau03 on SINHVIEN
+create trigger cau03 on SINHVIEN
 for delete
 as
 	begin
@@ -79,8 +80,8 @@ as
 			update LOP set SiSo = @siSoHienTai where MaLop = @maLop
 	end
 
-update LOP set SiSo = 3 where MaLop = 'L01'
-insert into SINHVIEN values ('SV01', 'Sinh Vien 01', '10/25/2001', 0, 'L01')
+--update LOP set SiSo = 4 where MaLop = 'L02'
+--insert into SINHVIEN values ('SV01', 'Sinh Vien 01', '10/25/2001', 0, 'L01')
 
 select * from LOP
 select * from SINHVIEN
