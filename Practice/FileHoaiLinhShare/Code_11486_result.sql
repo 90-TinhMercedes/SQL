@@ -57,7 +57,7 @@ as
 select * from CONGTY
 select * from SANPHAM
 select * from CUNGUNG
-select * from cau02('Cong Ty 01', '10/25/2020') 
+--select * from cau02('Cong Ty 01', '10/25/2020') 
 select * from cau02('Cong Ty 02', '03/17/2021') 
 
 -- cau 03:
@@ -67,7 +67,7 @@ as
 		if(exists (select * from CONGTY where TenCongTy = @tenCongTy))
 			begin
 				print N'Tên công ty đã tồn tại.'
-				set @result = 1
+				set @result = 1 -- gán
 			end
 		else
 			begin
@@ -78,9 +78,9 @@ as
 
 select * from CONGTY
 declare @ketQua int
---execute cau03 'CTY05', 'Cong Ty 01', 'Dia chi 05', @ketQua output -- Tên công ty đã tồn tại. Không hợp lệ.
-execute cau03 'CTY05', 'Cong Ty 05', 'Dia chi 05', @ketQua output -- Tên công ty hợp lệ.
-select @ketQua as KetQua
+--execute cau03 'CTY05', 'Cong Ty 05', 'Dia chi 05', @ketQua output -- Tên công ty đã tồn tại. Không hợp lệ.
+execute cau03 'CTY04', 'Cong Ty 04', 'Dia chi 04', @ketQua output -- Tên công ty hợp lệ.
+select @ketQua as KetQua -- hiển thị 0 hoặc 1
 select * from CONGTY
 
 
@@ -94,7 +94,7 @@ as
 		select @soLuongCungUngNew = SoLuongCungUng, @maSanPhamCungUngUpdate = MaSanPham from inserted
 		select @soLuongCungUngOld = SoLuongCungUng from deleted
 		select @soLuongCo = SoLuongCo from SANPHAM where MaSanPham = @maSanPhamCungUngUpdate
-		if ((@soLuongCungUngNew - @soLuongCungUngOld) > @soLuongCo)
+		if ((40 - 30) > 85)
 			begin
 				raiserror(N'Số lượng trong kho không đủ để cung ứng.', 16, 1)
 				rollback transaction
@@ -108,6 +108,6 @@ as
 select * from SANPHAM
 select * from CUNGUNG
 --update CUNGUNG set SoLuongCungUng = 500 where MaCongTy = 'CTY01' and MaSanPham = 'SP01' --Số lượng cung ứng quá lớn, trong kho không đủ.
-update CUNGUNG set SoLuongCungUng = 30 where MaCongTy = 'CTY01' and MaSanPham = 'SP01' --Số lượng cung ứng hợp lệ
+update CUNGUNG set SoLuongCungUng = 50 where MaCongTy = 'CTY01' and MaSanPham = 'SP01' --Số lượng cung ứng hợp lệ
 select * from SANPHAM
 select * from CUNGUNG
